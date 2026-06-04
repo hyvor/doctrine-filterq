@@ -5,6 +5,7 @@ namespace Hyvor\FilterQ\Tests;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\SchemaTool;
 use Hyvor\FilterQ\Tests\Entity\Author;
@@ -81,5 +82,35 @@ abstract class TestCase extends PHPUnitTestCase
     protected function getPostIds(array $posts): array
     {
         return array_map(fn(Post $p) => $p->id, $posts);
+    }
+
+
+    protected function assertSameQuery(Query $expected, Query $actual): void
+    {
+        $this->assertSame($expected->getSQL(), $actual->getSQL());
+
+        $expectedParams = $expected->getParameters()->toArray();
+        $actualParams = $actual->getParameters()->toArray();
+
+        for ($i = 0; $i < count($expectedParams); $i++) {
+            $this->assertSame($expectedParams[$i]->getType(), $actualParams[$i]->getType());
+
+            $expectedValue = $expectedParams[$i]->getValue();
+            $actualValue = $actualParams[$i]->getValue();
+
+            if ($expectedParams[$i]->getType() === 'datetime_immutable') {
+
+                assert($expectedValue instanceof \DateTimeImmutable);
+                assert($actualValue instanceof \DateTimeImmutable);
+
+                $this->assertSame(
+                    $expectedValue->format('Y-m-d H:i:s'),
+                    $actualValue->format('Y-m-d H:i:s')
+                );
+                continue;
+            }
+
+            $this->assertSame($expectedValue, $actualValue);
+        }
     }
 }

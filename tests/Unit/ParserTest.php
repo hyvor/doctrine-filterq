@@ -10,17 +10,17 @@ class ParserTest extends TestCase
 {
     public function testParsingKeywords(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', true]]],
             Parser::parse('key=true')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '!=', false]]],
             Parser::parse('key!=false')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', null]]],
             Parser::parse('key=null')
         );
@@ -28,27 +28,27 @@ class ParserTest extends TestCase
 
     public function testParsingNumbers(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 200]]],
             Parser::parse('key=200')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '>', 2000000000]]],
             Parser::parse('key>2000000000')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '<', -100]]],
             Parser::parse('key<-100')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '<=', 2.5]]],
             Parser::parse('key<=2.5')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '>=', -2.5]]],
             Parser::parse('key>=-2.5')
         );
@@ -56,12 +56,12 @@ class ParserTest extends TestCase
 
     public function testParingStrings(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 'Hello World']]],
             Parser::parse("key='Hello World'")
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', "Hello 'World'"]]],
             Parser::parse("key='Hello \'World\''")
         );
@@ -69,22 +69,22 @@ class ParserTest extends TestCase
 
     public function testParsingStringsWithoutQuotes(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 'hello']]],
             Parser::parse("key=hello")
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 'hello_world']]],
             Parser::parse("key=hello_world")
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 'hello-world']]],
             Parser::parse("key=hello-world")
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', '_0139210a-fejlwq']]],
             Parser::parse("key=_0139210a-fejlwq")
         );
@@ -110,14 +110,14 @@ class ParserTest extends TestCase
 
     public function testParsingNested(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
-                            ['key3', '=', '3'],
+                            ['key2', '=', 2],
+                            ['key3', '=', 3],
                         ]
                     ]
                 ]
@@ -125,18 +125,18 @@ class ParserTest extends TestCase
             Parser::parse('key1=1&(key2=2|key3=3)')
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
+                            ['key2', '=', 2],
                             [
                                 'and' => [
-                                    ['key3', '=', '3'],
-                                    ['key4', '=', '4'],
-                                    ['key5', '=', '5'],
+                                    ['key3', '=', 3],
+                                    ['key4', '=', 4],
+                                    ['key5', '=', 5],
                                 ]
                             ]
                         ]
@@ -149,14 +149,14 @@ class ParserTest extends TestCase
 
     public function testParsingMultiline(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
-                            ['key3', '=', '3'],
+                            ['key2', '=', 2],
+                            ['key3', '=', 3],
                         ]
                     ]
                 ]
@@ -173,7 +173,7 @@ class ParserTest extends TestCase
 
     public function testParsingInvalid(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             ['and' => [['key', '=', 'hello']]],
             Parser::parse("key='hello'world")
         );
@@ -181,7 +181,7 @@ class ParserTest extends TestCase
 
     public function test_parsing_nested(): void
     {
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'or' => [
                     [

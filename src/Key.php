@@ -23,13 +23,14 @@ class Key
     /** @var null|string[] */
     private ?array $supportedValueTypes = null;
 
-    public function __construct(string $name)
+    public function __construct(string $name, string $column)
     {
         if (!preg_match('/^[a-zA-Z0-9_.]+$/', $name)) {
             throw new FilterQException("Invalid key name: $name");
         }
 
         $this->name = $name;
+        $this->column = $column;
     }
 
     public function column(string $column): self
@@ -96,7 +97,7 @@ class Key
 
     public function getColumnName(): string
     {
-        return $this->column ?? $this->name;
+        return $this->column;
     }
 
     public function getJoin(): ?Closure

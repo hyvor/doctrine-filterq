@@ -1,6 +1,6 @@
 {
     "name": "hyvor/doctrine-filterq",
-    "description": "Advanced filtering for Symfony/Doctrine ORM APIs",
+    "description": "Advanced filtering for Doctrine ORM APIs",
     "type": "library",
     "license": "MIT",
     "authors": [

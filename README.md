@@ -1,4 +1,4 @@
-# FilterQ for Symfony / Doctrine ORM
+# FilterQ for Doctrine ORM
 
 FilterQ allows advanced filtering in Symfony APIs using Doctrine ORM. You can accept a single-line expression from your users like:
 
@@ -8,9 +8,13 @@ name=starter&(type=image|type=video)
 
 And FilterQ will convert it to DQL WHERE conditions in your Doctrine QueryBuilder.
 
+```
+WHERE name = 'starter' AND (type = 'image' OR type = 'video')
+```
+
 ---
 
-FilterQ was built for [Hyvor Blogs](https://blogs.hyvor.com)' Data API.
+FilterQ was built for [Hyvor Blogs](https://blogs.hyvor.com)' Data API. It was initially written for Laravel Eloquent and later ported to Doctrine ORM.
 
 ---
 
@@ -77,8 +81,8 @@ $qb = $entityManager->createQueryBuilder()
 $qb = FilterQ::expression('id=100|slug=hello')
     ->queryBuilder($qb)
     ->keys(function ($keys) {
-        $keys->add('id')->column('p.id');
-        $keys->add('slug')->column('p.slug');
+        $keys->add('id', 'p.id');
+        $keys->add('slug', 'p.slug');
     })
     ->addWhere();
 
@@ -116,13 +120,12 @@ Define all keys the user is allowed to filter on. This prevents SQL injection â€
 
 ```php
 ->keys(function ($keys) {
-    $keys->add('id')->column('p.id');
-    $keys->add('slug')->column('p.slug');
+    $keys->add('id', 'p.id');
+    $keys->add('slug', 'p.slug');
 })
 ```
 
-- `$keys->add($key)` registers a key and returns a `Key` object for further configuration.
-- `Key::column()` sets the DQL column reference. Defaults to the key name if not set. **Always include the entity alias** (e.g., `p.id`, not just `id`).
+- `$keys->add($key, $column)` registers a key and returns a `Key` object for further configuration. `$column` is the DQL column reference â€” **always include the entity alias** (e.g., `p.id`, not just `id`).
 - `Key::join()` sets a [join callback](#joins).
 - `Key::operators()` sets [allowed operators](#key-operators).
 - `Key::valueType()` defines [supported value types](#key-value-types).
@@ -136,8 +139,7 @@ To filter on a related entity's field, use a join callback. The callback receive
 FilterQ::expression('author.name=hyvor')
     ->queryBuilder($qb)
     ->keys(function ($keys) {
-        $keys->add('author.name')
-            ->column('a.name')
+        $keys->add('author.name', 'a.name')
             ->join(function ($qb) {
                 $qb->leftJoin('p.author', 'a');
             });
@@ -154,13 +156,13 @@ Restrict which operators are allowed for a key.
 ```php
 ->keys(function ($keys) {
     // only allow these operators
-    $keys->add('id')->operators('=,>,<');
+    $keys->add('id', 'p.id')->operators('=,>,<');
 
     // or use an array
-    $keys->add('slug')->operators(['=', '!=']);
+    $keys->add('slug', 'p.slug')->operators(['=', '!=']);
 
     // exclude specific operators
-    $keys->add('age')->operators('>', true);
+    $keys->add('age', 'p.age')->operators('>', true);
 })
 ```
 
@@ -170,10 +172,10 @@ Define the expected type for a key's value. Highly recommended for security and 
 
 ```php
 ->keys(function ($keys) {
-    $keys->add('id')->valueType('integer');
-    $keys->add('name')->valueType('string');
-    $keys->add('description')->valueType('string|null');
-    $keys->add('created_at')->valueType('date');
+    $keys->add('id', 'p.id')->valueType('integer');
+    $keys->add('name', 'p.name')->valueType('string');
+    $keys->add('description', 'p.description')->valueType('string|null');
+    $keys->add('created_at', 'p.created_at')->valueType('date');
 })
 ```
 
@@ -189,9 +191,9 @@ Special:
 Multiple types can be combined with `|` or as an array:
 
 ```php
-$keys->add('created_at')->valueType('date|null');
+$keys->add('created_at', 'p.created_at')->valueType('date|null');
 // or
-$keys->add('created_at')->valueType(['date', 'null']);
+$keys->add('created_at', 'p.created_at')->valueType(['date', 'null']);
 ```
 
 ## Key Values
@@ -200,8 +202,8 @@ Restrict a key to a specific set of allowed values. Useful for enum columns.
 
 ```php
 ->keys(function ($keys) {
-    $keys->add('status')->values(['published', 'draft']);
-    $keys->add('id')->values(200);
+    $keys->add('status', 'p.status')->values(['published', 'draft']);
+    $keys->add('id', 'p.id')->values(200);
 })
 ```
 
@@ -213,7 +215,7 @@ Add custom DQL operators. The callback receives the QueryBuilder, an auto-genera
 FilterQ::expression("title~'Hello%'")
     ->queryBuilder($qb)
     ->keys(function ($keys) {
-        $keys->add('title')->column('p.title');
+        $keys->add('title', 'p.title');
     })
     ->operators(function ($operators) {
         $operators->add('~', 'LIKE');

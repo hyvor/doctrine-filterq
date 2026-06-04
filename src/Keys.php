@@ -7,9 +7,9 @@ class Keys
     /** @var array<string, Key> */
     public array $keys = [];
 
-    public function add(string $name): Key
+    public function add(string $name, string $column): Key
     {
-        $key = new Key($name);
+        $key = new Key($name, $column);
         $this->keys[$name] = $key;
         return $key;
     }
