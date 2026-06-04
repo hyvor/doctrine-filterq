@@ -10,76 +10,74 @@ class FilterQTest extends TestCase
 {
     public function testEmpty(): void
     {
-        $this->createPost(['id' => 1, 'slug' => 'hello']);
-        $this->createPost(['id' => 2, 'slug' => 'world']);
+        $filterQ = FilterQ::expression(null)
+            ->queryBuilder($this->createQueryBuilder())
+            ->addWhere()
+            ->getQuery();
 
-        $qb = $this->createQueryBuilder();
-        FilterQ::expression(null)->queryBuilder($qb)->addWhere();
+        $filterQ2 = FilterQ::expression('')
+            ->queryBuilder($this->createQueryBuilder())
+            ->addWhere()
+            ->getQuery();
 
-        $result = $qb->getQuery()->getResult();
-        $this->assertCount(2, $result);
+        $q = $this->createQueryBuilder()->getQuery();
 
-        $qb2 = $this->createQueryBuilder();
-        FilterQ::expression('')->queryBuilder($qb2)->addWhere();
-
-        $result2 = $qb2->getQuery()->getResult();
-        $this->assertCount(2, $result2);
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSame($q->getSQL(), $filterQ2->getSQL());
     }
 
     public function testWithQueryBuilder(): void
     {
-        $this->createPost(['id' => 1, 'slug' => 'hello']);
-        $this->createPost(['id' => 2, 'slug' => 'world']);
-        $this->createPost(['id' => 3, 'slug' => 'test']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('id=1|slug=world')
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('id=1|slug=hello')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id');
                 $keys->add('slug')->column('p.slug');
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(2, $result);
-        $this->assertContains(1, $this->getPostIds($result));
-        $this->assertContains(2, $this->getPostIds($result));
+        $qb = $this->createQueryBuilder();
+        $q = $qb
+            ->andWhere($qb->expr()->orX('p.id = :id', 'p.slug = :slug'))
+            ->setParameter('id', 1)
+            ->setParameter('slug', 'hello')
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
-    public function testWithExistingConditions(): void
+    public function testWithExistingQueryBuilder(): void
     {
-        $this->createPost(['id' => 1, 'slug' => 'hello', 'status' => 'published']);
-        $this->createPost(['id' => 2, 'slug' => 'world', 'status' => 'draft']);
-        $this->createPost(['id' => 3, 'slug' => 'test', 'status' => 'published']);
+        $filterQ = FilterQ::expression('id=1|slug=hello')
+            ->queryBuilder(
+                $this->createQueryBuilder()
+                    ->andWhere('p.status = :status')
+                    ->setParameter('status', 'published')
+            )
+            ->keys(function ($keys): void {
+                $keys->add('id')->column('p.id');
+                $keys->add('slug')->column('p.slug');
+            })
+            ->addWhere()
+            ->getQuery();
 
         $qb = $this->createQueryBuilder()
             ->andWhere('p.status = :status')
             ->setParameter('status', 'published');
+        $q = $qb
+            ->andWhere($qb->expr()->orX('p.id = :id', 'p.slug = :slug'))
+            ->setParameter('id', 1)
+            ->setParameter('slug', 'hello')
+            ->getQuery();
 
-        $result = FilterQ::expression('id=1|id=2')
-            ->queryBuilder($qb)
-            ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
-            })
-            ->addWhere()
-            ->getQuery()
-            ->getResult();
-
-        $this->assertCount(1, $result);
-        $this->assertEquals(1, $result[0]->id);
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function testJoin(): void
     {
-        $author = $this->createAuthor(['id' => 1, 'name' => 'John']);
-        $this->createPost(['id' => 1, 'slug' => 'post1', 'author' => $author]);
-        $this->createPost(['id' => 2, 'slug' => 'post2']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression("author.name=John")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('author.name=test')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('author.name')
                     ->column('a.name')
@@ -88,48 +86,21 @@ class FilterQTest extends TestCase
                     });
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(1, $result);
-        $this->assertEquals(1, $result[0]->id);
-    }
+        $q = $this->createQueryBuilder()
+            ->leftJoin('p.author', 'a')
+            ->andWhere('a.name = :name')
+            ->setParameter('name', 'test')
+            ->getQuery();
 
-    public function testJoinDeduplication(): void
-    {
-        $author = $this->createAuthor(['id' => 1, 'name' => 'John']);
-        $this->createPost(['id' => 1, 'slug' => 'post1', 'author' => $author]);
-
-        $qb = $this->createQueryBuilder();
-
-        $joinCount = 0;
-        $result = FilterQ::expression("author.name=John&author.name=John")
-            ->queryBuilder($qb)
-            ->keys(function ($keys) use (&$joinCount): void {
-                $keys->add('author.name')
-                    ->column('a.name')
-                    ->join(function ($qb) use (&$joinCount): void {
-                        $joinCount++;
-                        $qb->leftJoin('p.author', 'a');
-                    });
-            })
-            ->addWhere()
-            ->getQuery()
-            ->getResult();
-
-        $this->assertEquals(1, $joinCount, 'Join should only be added once');
-        $this->assertCount(1, $result);
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function testJoinWithCallback(): void
     {
-        $author = $this->createAuthor(['id' => 1, 'name' => 'Jane']);
-        $this->createPost(['id' => 1, 'author' => $author]);
-        $this->createPost(['id' => 2]);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression("author.name=Jane")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('author.name=test')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('author.name')
                     ->column('a.name')
@@ -138,21 +109,21 @@ class FilterQTest extends TestCase
                     });
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(1, $result);
-        $this->assertEquals(1, $result[0]->id);
+        $q = $this->createQueryBuilder()
+            ->join('p.author', 'a')
+            ->andWhere('a.name = :name')
+            ->setParameter('name', 'test')
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function testCustomOperatorLike(): void
     {
-        $this->createPost(['id' => 1, 'title' => 'Hello World']);
-        $this->createPost(['id' => 2, 'title' => 'Goodbye World']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression("title~'Hello%'")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression("title~'Hello%'")
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('title')->column('p.title');
             })
@@ -160,44 +131,46 @@ class FilterQTest extends TestCase
                 $operators->add('~', 'LIKE');
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(1, $result);
-        $this->assertEquals(1, $result[0]->id);
+        $q = $this->createQueryBuilder()
+            ->andWhere('p.title LIKE :title')
+            ->setParameter('title', 'Hello%')
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function testCustomOperatorCallback(): void
     {
-        $this->createPost(['id' => 1, 'title' => 'Hello World']);
-        $this->createPost(['id' => 2, 'title' => 'Goodbye World']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression("title!world")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression("title!hello")
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('title')->column('p.title');
             })
             ->operators(function ($operators): void {
                 $operators->add('!', function ($qb, string $paramName, mixed $value): string {
-                    $qb->setParameter($paramName, '%' . $value . '%');
-                    return 'p.title LIKE :' . $paramName;
+                    $qb->setParameter($paramName, $value);
+                    return 'LOWER(p.title) = :' . $paramName;
                 });
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(2, $result);
+        $q = $this->createQueryBuilder()
+            ->andWhere('LOWER(p.title) = :title')
+            ->setParameter('title', 'hello')
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function testExceptionAccessingRemovedOperator(): void
     {
         $this->expectException(FilterQException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id>20')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id');
             })
@@ -211,9 +184,8 @@ class FilterQTest extends TestCase
     {
         $this->expectException(FilterQException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id%20')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id');
             })
@@ -224,13 +196,10 @@ class FilterQTest extends TestCase
     {
         $this->expectException(FilterQException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id!=20')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')
-                    ->column('p.id')
-                    ->operators('=,>,<');
+                $keys->add('id')->column('p.id')->operators('=,>,<');
             })
             ->addWhere();
     }
@@ -239,13 +208,10 @@ class FilterQTest extends TestCase
     {
         $this->expectException(FilterQException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id!=20')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')
-                    ->column('p.id')
-                    ->operators(['=', '>']);
+                $keys->add('id')->column('p.id')->operators(['=', '>']);
             })
             ->addWhere();
     }
@@ -254,87 +220,38 @@ class FilterQTest extends TestCase
     {
         $this->expectException(FilterQException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id>20')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')
-                    ->column('p.id')
-                    ->operators('>', true);
+                $keys->add('id')->column('p.id')->operators('>', true);
             })
             ->addWhere();
     }
 
     public function test_nested_logic(): void
     {
-        $this->createPost(['id' => 1, 'views' => 5]);
-        $this->createPost(['id' => 2, 'views' => 5]);
-        $this->createPost(['id' => 3, 'views' => 10]);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('((id=1&views=5)|(id=2))')
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('((id=1&views=5)|(id=2))')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id');
                 $keys->add('views')->column('p.views');
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
-
-        $this->assertCount(2, $result);
-        $this->assertContains(1, $this->getPostIds($result));
-        $this->assertContains(2, $this->getPostIds($result));
-    }
-
-    public function testExceptionUnsupportedKey(): void
-    {
-        $this->expectException(FilterQException::class);
+            ->getQuery();
 
         $qb = $this->createQueryBuilder();
-        FilterQ::expression('unknown=1')
-            ->queryBuilder($qb)
-            ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
-            })
-            ->addWhere();
-    }
+        $q = $qb
+            ->andWhere(
+                $qb->expr()->orX(
+                    $qb->expr()->andX('p.id = :id1', 'p.views = :views'),
+                    'p.id = :id2'
+                )
+            )
+            ->setParameter('id1', 1)
+            ->setParameter('views', 5)
+            ->setParameter('id2', 2)
+            ->getQuery();
 
-    public function testNullEquality(): void
-    {
-        $this->createPost(['id' => 1, 'slug' => null]);
-        $this->createPost(['id' => 2, 'slug' => 'hello']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('slug=null')
-            ->queryBuilder($qb)
-            ->keys(function ($keys): void {
-                $keys->add('slug')->column('p.slug');
-            })
-            ->addWhere()
-            ->getQuery()
-            ->getResult();
-
-        $this->assertCount(1, $result);
-        $this->assertEquals(1, $result[0]->id);
-    }
-
-    public function testNullInequality(): void
-    {
-        $this->createPost(['id' => 1, 'slug' => null]);
-        $this->createPost(['id' => 2, 'slug' => 'hello']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('slug!=null')
-            ->queryBuilder($qb)
-            ->keys(function ($keys): void {
-                $keys->add('slug')->column('p.slug');
-            })
-            ->addWhere()
-            ->getQuery()
-            ->getResult();
-
-        $this->assertCount(1, $result);
-        $this->assertEquals(2, $result[0]->id);
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 }

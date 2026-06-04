@@ -10,30 +10,28 @@ class KeyValueTest extends TestCase
 {
     public function test_key_value(): void
     {
-        $this->createPost(['id' => 200, 'slug' => 'hello']);
-        $this->createPost(['id' => 300, 'slug' => 'world']);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('id=200')
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('id=200')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->values(200);
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(1, $result);
-        $this->assertEquals(200, $result[0]->id);
+        $q = $this->createQueryBuilder()
+            ->andWhere('p.id = :id')
+            ->setParameter('id', 200)
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function test_key_value_invalid(): void
     {
         $this->expectException(InvalidValueException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id=200')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->values(300);
             })
@@ -42,32 +40,30 @@ class KeyValueTest extends TestCase
 
     public function test_key_values(): void
     {
-        $this->createPost(['id' => 200]);
-        $this->createPost(['id' => 300]);
-        $this->createPost(['id' => 400]);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression('id=200|id=300')
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression('id=200|id=300')
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->values([200, 300]);
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(2, $result);
-        $this->assertContains(200, $this->getPostIds($result));
-        $this->assertContains(300, $this->getPostIds($result));
+        $qb = $this->createQueryBuilder();
+        $q = $qb
+            ->andWhere($qb->expr()->orX('p.id = :id1', 'p.id = :id2'))
+            ->setParameter('id1', 200)
+            ->setParameter('id2', 300)
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function test_key_values_invalid(): void
     {
         $this->expectException(InvalidValueException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id=200|id=300')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->values([200, 400]);
             })
@@ -78,9 +74,8 @@ class KeyValueTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression('id=200|slug=photo')
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->values([200, 400]);
                 $keys->add('slug')->column('p.slug')->values(['audio', 'type']);

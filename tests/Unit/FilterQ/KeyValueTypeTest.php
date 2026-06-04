@@ -10,30 +10,28 @@ class KeyValueTypeTest extends TestCase
 {
     public function test_key_type_int_check(): void
     {
-        $this->createPost(['id' => 2]);
-        $this->createPost(['id' => 3]);
-
-        $qb = $this->createQueryBuilder();
-        $result = FilterQ::expression("id=2")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression("id=2")
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->valueType('int');
             })
             ->addWhere()
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
 
-        $this->assertCount(1, $result);
-        $this->assertEquals(2, $result[0]->id);
+        $q = $this->createQueryBuilder()
+            ->andWhere('p.id = :id')
+            ->setParameter('id', 2)
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 
     public function test_key_type_int_invalid_check(): void
     {
         $this->expectException(InvalidValueException::class);
 
-        $qb = $this->createQueryBuilder();
         FilterQ::expression("id='2'")
-            ->queryBuilder($qb)
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
                 $keys->add('id')->column('p.id')->valueType('int');
             })
@@ -42,14 +40,19 @@ class KeyValueTypeTest extends TestCase
 
     public function test_key_type_date(): void
     {
-        $qb = $this->createQueryBuilder();
-        FilterQ::expression("id='2022-02-22'")
-            ->queryBuilder($qb)
+        $filterQ = FilterQ::expression("created_at='2022-02-22'")
+            ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->valueType('date');
+                $keys->add('created_at')->column('p.id')->valueType('date');
             })
-            ->addWhere();
+            ->addWhere()
+            ->getQuery();
 
-        $this->assertTrue(true);
+        $q = $this->createQueryBuilder()
+            ->andWhere('p.id = :created_at')
+            ->setParameter('created_at', new \DateTimeImmutable('2022-02-22'))
+            ->getQuery();
+
+        $this->assertSame($q->getSQL(), $filterQ->getSQL());
     }
 }
