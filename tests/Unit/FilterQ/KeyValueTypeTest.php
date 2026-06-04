@@ -43,13 +43,13 @@ class KeyValueTypeTest extends TestCase
         $filterQ = FilterQ::expression("created_at='2022-02-22'")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('created_at')->column('p.id')->valueType('date');
+                $keys->add('created_at')->column('p.created_at')->valueType('date');
             })
             ->addWhere()
             ->getQuery();
 
         $q = $this->createQueryBuilder()
-            ->andWhere('p.id = :created_at')
+            ->andWhere('p.created_at = :created_at')
             ->setParameter('created_at', new \DateTimeImmutable('2022-02-22'))
             ->getQuery();
 

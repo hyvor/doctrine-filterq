@@ -13,6 +13,9 @@ class Post
     #[ORM\GeneratedValue(strategy: 'NONE')]
     public int $id;
 
+    #[ORM\Column(type: 'datetime')]
+    public \DateTimeImmutable $created_at;
+
     #[ORM\Column(type: 'string', nullable: true)]
     public ?string $slug = null;
 
