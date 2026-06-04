@@ -9,18 +9,19 @@ name=starter&(type=image|type=video)
 And FilterQ will convert it to DQL WHERE conditions in your Doctrine QueryBuilder.
 
 ---
+
 FilterQ was built for [Hyvor Blogs](https://blogs.hyvor.com)' Data API.
 
 ---
 
 ## Features
 
-* Easy-to-write, single or multi-line expressions.
-* Logical operators (`&` and `|`) and nesting/grouping (with `()`)
-* Secure. FilterQ only gives access to the columns and operators you define.
-* Supports joining related entities. Users can filter by joined entity fields.
-* Supports "type hinting" for keys.
-* Extensible. You can add your own operators easily (e.g., SQL `LIKE`).
+- Easy-to-write, single or multi-line expressions.
+- Logical operators (`&` and `|`) and nesting/grouping (with `()`)
+- Secure. FilterQ only gives access to the columns and operators you define.
+- Supports joining related entities. Users can filter by joined entity fields.
+- Supports "type hinting" for keys.
+- Extensible. You can add your own operators easily (e.g., SQL `LIKE`).
 
 # FilterQ Expressions
 
@@ -63,7 +64,7 @@ By default, the following operators are supported.
 # Basic Usage
 
 ```
-composer require hyvor/symfony-filterq
+composer require hyvor/doctrine-filterq
 ```
 
 ```php
@@ -181,6 +182,7 @@ Supported types:
 Scalar: `int`, `float`, `string`, `null`, `bool`
 
 Special:
+
 - `numeric` — int, float, or numeric string
 - `date` — a valid date/time string or Unix timestamp. Returns a `\DateTimeImmutable`. (Uses PHP's `strtotime()`, so relative dates like `"-7 days"` are supported.)
 
@@ -231,6 +233,7 @@ For more complex cases, use a callback:
 ```
 
 The callback signature is `(QueryBuilder $qb, string $paramName, mixed $value): string`. It should:
+
 1. Bind the value with `$qb->setParameter($paramName, $value)` if needed.
 2. Return a DQL expression string.
 
