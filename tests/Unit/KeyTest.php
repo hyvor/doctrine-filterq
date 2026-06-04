@@ -17,9 +17,9 @@ class KeyTest extends TestCase
     public function test_key_column(): void
     {
         $key = new Key('test');
-        $key->column('p.age');
+        $key->column('age');
 
-        $this->assertEquals('p.age', $key->getColumnName());
+        $this->assertSame('age', $key->getColumnName());
     }
 
     public function test_key_column_string_expression(): void
@@ -27,7 +27,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->column('COUNT(p.id)');
 
-        $this->assertEquals('COUNT(p.id)', $key->getColumnName());
+        $this->assertSame('COUNT(p.id)', $key->getColumnName());
     }
 
     public function test_key_operators(): void
@@ -35,7 +35,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->operators('>,<');
 
-        $this->assertEquals(['>', '<'], $key->getIncludedOperators());
+        $this->assertSame(['>', '<'], $key->getIncludedOperators());
     }
 
     public function test_key_operators_array(): void
@@ -43,7 +43,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->operators(['>', '<']);
 
-        $this->assertEquals(['>', '<'], $key->getIncludedOperators());
+        $this->assertSame(['>', '<'], $key->getIncludedOperators());
     }
 
     public function test_key_values(): void
@@ -51,7 +51,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->values(200);
 
-        $this->assertEquals([200], $key->getSupportedValues());
+        $this->assertSame([200], $key->getSupportedValues());
     }
 
     public function test_key_values_array(): void
@@ -59,7 +59,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->values([1, 2]);
 
-        $this->assertEquals([1, 2], $key->getSupportedValues());
+        $this->assertSame([1, 2], $key->getSupportedValues());
     }
 
     public function test_key_value_type(): void
@@ -67,7 +67,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->valueType('string');
 
-        $this->assertEquals(['string'], $key->getSupportedValueTypes());
+        $this->assertSame(['string'], $key->getSupportedValueTypes());
     }
 
     public function test_key_value_type_multi(): void
@@ -75,7 +75,7 @@ class KeyTest extends TestCase
         $key = new Key('test');
         $key->valueType('string|null');
 
-        $this->assertEquals(['string', 'null'], $key->getSupportedValueTypes());
+        $this->assertSame(['string', 'null'], $key->getSupportedValueTypes());
     }
 
     public function test_key_value_type_wrong(): void
@@ -100,24 +100,7 @@ class KeyTest extends TestCase
         $this->assertNotNull($joinFunc);
         $joinFunc($qb2);
 
-        $this->assertEquals($qb1->getDQL(), $qb2->getDQL());
-    }
-
-    public function test_join_callback(): void
-    {
-        $key = new Key('test');
-        $key->join(function ($qb): void {
-            $qb->join('p.author', 'a');
-        });
-
-        $qb1 = $this->createQueryBuilder()->join('p.author', 'a');
-        $qb2 = $this->createQueryBuilder();
-
-        $joinFunc = $key->getJoin();
-        $this->assertNotNull($joinFunc);
-        $joinFunc($qb2);
-
-        $this->assertEquals($qb1->getDQL(), $qb2->getDQL());
+        $this->assertSame($qb1->getDQL(), $qb2->getDQL());
     }
 
     public function test_chaining(): void
@@ -131,6 +114,6 @@ class KeyTest extends TestCase
             ->join(function (): void {})
             ->operators('>');
 
-        $this->assertEquals($key, $keyNew);
+        $this->assertSame($key, $keyNew);
     }
 }

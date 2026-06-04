@@ -16,7 +16,7 @@ class ValueValidatorTest extends TestCase
 
         $validated = ValueValidator::validate($key, 250);
 
-        $this->assertEquals(250, $validated);
+        $this->assertSame(250, $validated);
     }
 
     public function test_key_value_wrong(): void
@@ -34,7 +34,7 @@ class ValueValidatorTest extends TestCase
         $key->valueType('string');
         $value = ValueValidator::validate($key, 'some string');
 
-        $this->assertEquals('some string', $value);
+        $this->assertSame('some string', $value);
     }
 
     public function test_key_value_type_string_wrong(): void
@@ -52,7 +52,7 @@ class ValueValidatorTest extends TestCase
         $key->valueType('int');
         $value = ValueValidator::validate($key, 200);
 
-        $this->assertEquals(200, $value);
+        $this->assertSame(200, $value);
     }
 
     public function test_key_value_type_int_wrong(): void
@@ -70,7 +70,7 @@ class ValueValidatorTest extends TestCase
         $key->valueType('float');
         $value = ValueValidator::validate($key, 20.0);
 
-        $this->assertEquals(20.0, $value);
+        $this->assertSame(20.0, $value);
     }
 
     public function test_key_value_type_float_wrong(): void
@@ -87,9 +87,9 @@ class ValueValidatorTest extends TestCase
         $key = new Key('test');
         $key->valueType('numeric');
 
-        $this->assertEquals(20, ValueValidator::validate($key, 20));
-        $this->assertEquals('20', ValueValidator::validate($key, '20'));
-        $this->assertEquals(20.2, ValueValidator::validate($key, 20.2));
+        $this->assertSame(20, ValueValidator::validate($key, 20));
+        $this->assertSame('20', ValueValidator::validate($key, '20'));
+        $this->assertSame(20.2, ValueValidator::validate($key, 20.2));
     }
 
     public function test_key_value_type_numeric_wrong(): void
@@ -106,8 +106,8 @@ class ValueValidatorTest extends TestCase
         $key = new Key('test');
         $key->valueType('bool');
 
-        $this->assertEquals(true, ValueValidator::validate($key, true));
-        $this->assertEquals(false, ValueValidator::validate($key, false));
+        $this->assertSame(true, ValueValidator::validate($key, true));
+        $this->assertSame(false, ValueValidator::validate($key, false));
     }
 
     public function test_key_value_type_bool_wrong(): void
@@ -124,7 +124,7 @@ class ValueValidatorTest extends TestCase
         $key = new Key('test');
         $key->valueType('null');
 
-        $this->assertEquals(null, ValueValidator::validate($key, null));
+        $this->assertSame(null, ValueValidator::validate($key, null));
     }
 
     public function test_key_value_type_null_wrong(): void
@@ -144,7 +144,7 @@ class ValueValidatorTest extends TestCase
         $result = ValueValidator::validate($key, '2020-02-10');
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $result);
-        $this->assertEquals('2020-02-10', $result->format('Y-m-d'));
+        $this->assertSame('2020-02-10', $result->format('Y-m-d'));
     }
 
     public function test_key_value_type_date_relative(): void
@@ -155,7 +155,7 @@ class ValueValidatorTest extends TestCase
         $result = ValueValidator::validate($key, 'yesterday');
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $result);
-        $this->assertEquals(
+        $this->assertSame(
             (new \DateTimeImmutable('yesterday'))->format('Y-m-d'),
             $result->format('Y-m-d')
         );
@@ -169,7 +169,7 @@ class ValueValidatorTest extends TestCase
         $result = ValueValidator::validate($key, 1649358544);
 
         $this->assertInstanceOf(\DateTimeImmutable::class, $result);
-        $this->assertEquals(
+        $this->assertSame(
             (new \DateTimeImmutable('@1649358544'))->getTimestamp(),
             $result->getTimestamp()
         );
@@ -189,7 +189,7 @@ class ValueValidatorTest extends TestCase
         $key = new Key('test');
         $key->valueType('date|null');
 
-        $this->assertEquals(null, ValueValidator::validate($key, null));
+        $this->assertSame(null, ValueValidator::validate($key, null));
     }
 
     public function test_key_value_type_union_wrong(): void
@@ -207,6 +207,6 @@ class ValueValidatorTest extends TestCase
         $key = new Key('test');
         $key->valueType(['int', 'string']);
 
-        $this->assertEquals('string', ValueValidator::validate($key, 'string'));
+        $this->assertSame('string', ValueValidator::validate($key, 'string'));
     }
 }
