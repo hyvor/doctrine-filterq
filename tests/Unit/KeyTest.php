@@ -11,12 +11,12 @@ class KeyTest extends TestCase
     public function test_key_name(): void
     {
         $this->expectException(FilterQException::class);
-        new Key('(E*@NCQLK');
+        new Key('(E*@NCQLK', 'col');
     }
 
     public function test_key_column(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'initial');
         $key->column('age');
 
         $this->assertSame('age', $key->getColumnName());
@@ -24,7 +24,7 @@ class KeyTest extends TestCase
 
     public function test_key_column_string_expression(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'initial');
         $key->column('COUNT(p.id)');
 
         $this->assertSame('COUNT(p.id)', $key->getColumnName());
@@ -32,7 +32,7 @@ class KeyTest extends TestCase
 
     public function test_key_operators(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->operators('>,<');
 
         $this->assertSame(['>', '<'], $key->getIncludedOperators());
@@ -40,7 +40,7 @@ class KeyTest extends TestCase
 
     public function test_key_operators_array(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->operators(['>', '<']);
 
         $this->assertSame(['>', '<'], $key->getIncludedOperators());
@@ -48,7 +48,7 @@ class KeyTest extends TestCase
 
     public function test_key_values(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->values(200);
 
         $this->assertSame([200], $key->getSupportedValues());
@@ -56,7 +56,7 @@ class KeyTest extends TestCase
 
     public function test_key_values_array(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->values([1, 2]);
 
         $this->assertSame([1, 2], $key->getSupportedValues());
@@ -64,7 +64,7 @@ class KeyTest extends TestCase
 
     public function test_key_value_type(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('string');
 
         $this->assertSame(['string'], $key->getSupportedValueTypes());
@@ -72,7 +72,7 @@ class KeyTest extends TestCase
 
     public function test_key_value_type_multi(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('string|null');
 
         $this->assertSame(['string', 'null'], $key->getSupportedValueTypes());
@@ -82,13 +82,13 @@ class KeyTest extends TestCase
     {
         $this->expectException(FilterQException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('stringify');
     }
 
     public function test_join(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->join(function ($qb): void {
             $qb->leftJoin('p.author', 'a');
         });
@@ -105,7 +105,7 @@ class KeyTest extends TestCase
 
     public function test_chaining(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
 
         $keyNew = $key
             ->column('p.test')

@@ -13,7 +13,7 @@ class KeyValueTest extends TestCase
         $filterQ = FilterQ::expression('id=200')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->values(200);
+                $keys->add('id', 'p.id')->values(200);
             })
             ->addWhere()
             ->getQuery();
@@ -33,7 +33,7 @@ class KeyValueTest extends TestCase
         FilterQ::expression('id=200')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->values(300);
+                $keys->add('id', 'p.id')->values(300);
             })
             ->addWhere();
     }
@@ -43,7 +43,7 @@ class KeyValueTest extends TestCase
         $filterQ = FilterQ::expression('id=200|id=300')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->values([200, 300]);
+                $keys->add('id', 'p.id')->values([200, 300]);
             })
             ->addWhere()
             ->getQuery();
@@ -65,7 +65,7 @@ class KeyValueTest extends TestCase
         FilterQ::expression('id=200|id=300')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->values([200, 400]);
+                $keys->add('id', 'p.id')->values([200, 400]);
             })
             ->addWhere();
     }
@@ -77,8 +77,8 @@ class KeyValueTest extends TestCase
         FilterQ::expression('id=200|slug=photo')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->values([200, 400]);
-                $keys->add('slug')->column('p.slug')->values(['audio', 'type']);
+                $keys->add('id', 'p.id')->values([200, 400]);
+                $keys->add('slug', 'p.slug')->values(['audio', 'type']);
             })
             ->addWhere();
     }

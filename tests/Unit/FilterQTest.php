@@ -31,8 +31,8 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression('id=1|slug=hello')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
-                $keys->add('slug')->column('p.slug');
+                $keys->add('id', 'p.id');
+                $keys->add('slug', 'p.slug');
             })
             ->addWhere()
             ->getQuery();
@@ -56,8 +56,8 @@ class FilterQTest extends TestCase
                     ->setParameter('status', 'published')
             )
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
-                $keys->add('slug')->column('p.slug');
+                $keys->add('id', 'p.id');
+                $keys->add('slug', 'p.slug');
             })
             ->addWhere()
             ->getQuery();
@@ -79,8 +79,7 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression('author.name=test')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('author.name')
-                    ->column('a.name')
+                $keys->add('author.name', 'a.name')
                     ->join(function ($qb): void {
                         $qb->leftJoin('p.author', 'a');
                     });
@@ -102,8 +101,7 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression('author.name=test')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('author.name')
-                    ->column('a.name')
+                $keys->add('author.name', 'a.name')
                     ->join(function ($qb): void {
                         $qb->join('p.author', 'a');
                     });
@@ -125,7 +123,7 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression("title~'Hello%'")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('title')->column('p.title');
+                $keys->add('title', 'p.title');
             })
             ->operators(function ($operators): void {
                 $operators->add('~', 'LIKE');
@@ -146,7 +144,7 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression("title!hello")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('title')->column('p.title');
+                $keys->add('title', 'p.title');
             })
             ->operators(function ($operators): void {
                 $operators->add('!', function ($qb, string $paramName, mixed $value): string {
@@ -172,7 +170,7 @@ class FilterQTest extends TestCase
         FilterQ::expression('id>20')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
+                $keys->add('id', 'p.id');
             })
             ->operators(function ($operators): void {
                 $operators->remove('>');
@@ -187,7 +185,7 @@ class FilterQTest extends TestCase
         FilterQ::expression('id%20')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
+                $keys->add('id', 'p.id');
             })
             ->addWhere();
     }
@@ -199,7 +197,7 @@ class FilterQTest extends TestCase
         FilterQ::expression('id!=20')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->operators('=,>,<');
+                $keys->add('id', 'p.id')->operators('=,>,<');
             })
             ->addWhere();
     }
@@ -211,7 +209,7 @@ class FilterQTest extends TestCase
         FilterQ::expression('id!=20')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->operators(['=', '>']);
+                $keys->add('id', 'p.id')->operators(['=', '>']);
             })
             ->addWhere();
     }
@@ -223,7 +221,7 @@ class FilterQTest extends TestCase
         FilterQ::expression('id>20')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->operators('>', true);
+                $keys->add('id', 'p.id')->operators('>', true);
             })
             ->addWhere();
     }
@@ -233,8 +231,8 @@ class FilterQTest extends TestCase
         $filterQ = FilterQ::expression('((id=1&views=5)|(id=2))')
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id');
-                $keys->add('views')->column('p.views');
+                $keys->add('id', 'p.id');
+                $keys->add('views', 'p.views');
             })
             ->addWhere()
             ->getQuery();

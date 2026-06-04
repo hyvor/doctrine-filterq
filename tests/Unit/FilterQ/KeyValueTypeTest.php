@@ -13,7 +13,7 @@ class KeyValueTypeTest extends TestCase
         $filterQ = FilterQ::expression("id=2")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->valueType('int');
+                $keys->add('id', 'p.id')->valueType('int');
             })
             ->addWhere()
             ->getQuery();
@@ -33,7 +33,7 @@ class KeyValueTypeTest extends TestCase
         FilterQ::expression("id='2'")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('id')->column('p.id')->valueType('int');
+                $keys->add('id', 'p.id')->valueType('int');
             })
             ->addWhere();
     }
@@ -43,7 +43,7 @@ class KeyValueTypeTest extends TestCase
         $filterQ = FilterQ::expression("created_at='2022-02-22'")
             ->queryBuilder($this->createQueryBuilder())
             ->keys(function ($keys): void {
-                $keys->add('created_at')->column('p.created_at')->valueType('date');
+                $keys->add('created_at', 'p.created_at')->valueType('date');
             })
             ->addWhere()
             ->getQuery();

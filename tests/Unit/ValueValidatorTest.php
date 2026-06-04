@@ -11,7 +11,7 @@ class ValueValidatorTest extends TestCase
 {
     public function test_key_value(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->values([200, 250]);
 
         $validated = ValueValidator::validate($key, 250);
@@ -23,14 +23,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->values([200, 250]);
         ValueValidator::validate($key, 300);
     }
 
     public function test_key_value_type_string(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('string');
         $value = ValueValidator::validate($key, 'some string');
 
@@ -41,14 +41,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('string');
         ValueValidator::validate($key, 300);
     }
 
     public function test_key_value_type_int(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('int');
         $value = ValueValidator::validate($key, 200);
 
@@ -59,14 +59,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('int');
         ValueValidator::validate($key, 'string');
     }
 
     public function test_key_value_type_float(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('float');
         $value = ValueValidator::validate($key, 20.0);
 
@@ -77,14 +77,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('float');
         ValueValidator::validate($key, 20);
     }
 
     public function test_key_value_type_numeric(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('numeric');
 
         $this->assertSame(20, ValueValidator::validate($key, 20));
@@ -96,14 +96,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('numeric');
         ValueValidator::validate($key, null);
     }
 
     public function test_key_value_type_bool(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('bool');
 
         $this->assertSame(true, ValueValidator::validate($key, true));
@@ -114,14 +114,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('bool');
         ValueValidator::validate($key, null);
     }
 
     public function test_key_value_type_null(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('null');
 
         $this->assertSame(null, ValueValidator::validate($key, null));
@@ -131,14 +131,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('null');
         ValueValidator::validate($key, 1220);
     }
 
     public function test_key_value_type_date(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date');
 
         $result = ValueValidator::validate($key, '2020-02-10');
@@ -149,7 +149,7 @@ class ValueValidatorTest extends TestCase
 
     public function test_key_value_type_date_relative(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date');
 
         $result = ValueValidator::validate($key, 'yesterday');
@@ -163,7 +163,7 @@ class ValueValidatorTest extends TestCase
 
     public function test_key_value_type_date_unix(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date');
 
         $result = ValueValidator::validate($key, 1649358544);
@@ -179,14 +179,14 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date');
         ValueValidator::validate($key, 'fslerklwao');
     }
 
     public function test_key_value_type_union(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date|null');
 
         $this->assertSame(null, ValueValidator::validate($key, null));
@@ -196,7 +196,7 @@ class ValueValidatorTest extends TestCase
     {
         $this->expectException(InvalidValueException::class);
 
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType('date|null');
 
         ValueValidator::validate($key, true);
@@ -204,7 +204,7 @@ class ValueValidatorTest extends TestCase
 
     public function test_key_value_type_union_array(): void
     {
-        $key = new Key('test');
+        $key = new Key('test', 'test');
         $key->valueType(['int', 'string']);
 
         $this->assertSame('string', ValueValidator::validate($key, 'string'));
