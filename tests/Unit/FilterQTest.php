@@ -45,6 +45,7 @@ class FilterQTest extends TestCase
             ->getQuery();
 
         $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function testWithExistingQueryBuilder(): void
