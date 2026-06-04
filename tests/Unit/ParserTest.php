@@ -113,11 +113,11 @@ class ParserTest extends TestCase
         $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
-                            ['key3', '=', '3'],
+                            ['key2', '=', 2],
+                            ['key3', '=', 3],
                         ]
                     ]
                 ]
@@ -128,15 +128,15 @@ class ParserTest extends TestCase
         $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
+                            ['key2', '=', 2],
                             [
                                 'and' => [
-                                    ['key3', '=', '3'],
-                                    ['key4', '=', '4'],
-                                    ['key5', '=', '5'],
+                                    ['key3', '=', 3],
+                                    ['key4', '=', 4],
+                                    ['key5', '=', 5],
                                 ]
                             ]
                         ]
@@ -152,11 +152,11 @@ class ParserTest extends TestCase
         $this->assertSame(
             [
                 'and' => [
-                    ['key1', '=', '1'],
+                    ['key1', '=', 1],
                     [
                         'or' => [
-                            ['key2', '=', '2'],
-                            ['key3', '=', '3'],
+                            ['key2', '=', 2],
+                            ['key3', '=', 3],
                         ]
                     ]
                 ]

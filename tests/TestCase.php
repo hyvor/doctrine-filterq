@@ -93,8 +93,24 @@ abstract class TestCase extends PHPUnitTestCase
         $actualParams = $actual->getParameters()->toArray();
 
         for ($i = 0; $i < count($expectedParams); $i++) {
-            $this->assertSame($expectedParams[$i]->getValue(), $actualParams[$i]->getValue());
             $this->assertSame($expectedParams[$i]->getType(), $actualParams[$i]->getType());
+
+            $expectedValue = $expectedParams[$i]->getValue();
+            $actualValue = $actualParams[$i]->getValue();
+
+            if ($expectedParams[$i]->getType() === 'datetime_immutable') {
+
+                assert($expectedValue instanceof \DateTimeImmutable);
+                assert($actualValue instanceof \DateTimeImmutable);
+
+                $this->assertSame(
+                    $expectedValue->format('Y-m-d H:i:s'),
+                    $actualValue->format('Y-m-d H:i:s')
+                );
+                continue;
+            }
+
+            $this->assertSame($expectedValue, $actualValue);
         }
     }
 }

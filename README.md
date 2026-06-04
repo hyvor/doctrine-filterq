@@ -1,4 +1,4 @@
-# FilterQ for Symfony / Doctrine ORM
+# FilterQ for Doctrine ORM
 
 FilterQ allows advanced filtering in Symfony APIs using Doctrine ORM. You can accept a single-line expression from your users like:
 
@@ -8,9 +8,13 @@ name=starter&(type=image|type=video)
 
 And FilterQ will convert it to DQL WHERE conditions in your Doctrine QueryBuilder.
 
+```
+WHERE name = 'starter' AND (type = 'image' OR type = 'video')
+```
+
 ---
 
-FilterQ was built for [Hyvor Blogs](https://blogs.hyvor.com)' Data API.
+FilterQ was built for [Hyvor Blogs](https://blogs.hyvor.com)' Data API. It was initially written for Laravel Eloquent and later ported to Doctrine ORM.
 
 ---
 
