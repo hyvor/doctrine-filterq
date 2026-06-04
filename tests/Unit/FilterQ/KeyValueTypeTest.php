@@ -23,7 +23,7 @@ class KeyValueTypeTest extends TestCase
             ->setParameter('id', 2)
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function test_key_type_int_invalid_check(): void
@@ -53,6 +53,6 @@ class KeyValueTypeTest extends TestCase
             ->setParameter('created_at', new \DateTimeImmutable('2022-02-22'))
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 }

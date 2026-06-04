@@ -23,7 +23,7 @@ class KeyValueTest extends TestCase
             ->setParameter('id', 200)
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function test_key_value_invalid(): void
@@ -55,7 +55,7 @@ class KeyValueTest extends TestCase
             ->setParameter('id2', 300)
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function test_key_values_invalid(): void

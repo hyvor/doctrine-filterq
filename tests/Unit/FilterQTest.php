@@ -22,8 +22,8 @@ class FilterQTest extends TestCase
 
         $q = $this->createQueryBuilder()->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
-        $this->assertSame($q->getSQL(), $filterQ2->getSQL());
+        $this->assertSameQuery($q, $filterQ);
+        $this->assertSameQuery($q, $filterQ2);
     }
 
     public function testWithQueryBuilder(): void
@@ -44,7 +44,6 @@ class FilterQTest extends TestCase
             ->setParameter('slug', 'hello')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
         $this->assertSameQuery($q, $filterQ);
     }
 
@@ -72,10 +71,10 @@ class FilterQTest extends TestCase
             ->setParameter('slug', 'hello')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
-    public function testJoin(): void
+    public function test_leftjoin(): void
     {
         $filterQ = FilterQ::expression('author.name=test')
             ->queryBuilder($this->createQueryBuilder())
@@ -94,10 +93,10 @@ class FilterQTest extends TestCase
             ->setParameter('name', 'test')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
-    public function testJoinWithCallback(): void
+    public function test_join(): void
     {
         $filterQ = FilterQ::expression('author.name=test')
             ->queryBuilder($this->createQueryBuilder())
@@ -116,7 +115,7 @@ class FilterQTest extends TestCase
             ->setParameter('name', 'test')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function testCustomOperatorLike(): void
@@ -137,7 +136,7 @@ class FilterQTest extends TestCase
             ->setParameter('title', 'Hello%')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function testCustomOperatorCallback(): void
@@ -161,7 +160,7 @@ class FilterQTest extends TestCase
             ->setParameter('title', 'hello')
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 
     public function testExceptionAccessingRemovedOperator(): void
@@ -251,6 +250,6 @@ class FilterQTest extends TestCase
             ->setParameter('id2', 2)
             ->getQuery();
 
-        $this->assertSame($q->getSQL(), $filterQ->getSQL());
+        $this->assertSameQuery($q, $filterQ);
     }
 }

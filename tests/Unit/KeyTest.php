@@ -100,7 +100,7 @@ class KeyTest extends TestCase
         $this->assertNotNull($joinFunc);
         $joinFunc($qb2);
 
-        $this->assertSame($qb1->getDQL(), $qb2->getDQL());
+        $this->assertSameQuery($qb1->getQuery(), $qb2->getQuery());
     }
 
     public function test_chaining(): void
